@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Slew.PresentationBus</id>
+        <version>1.0.0</version>
+        <authors>Shannon Lewis</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>In-process messaging for .NET rich clients.</description>
+    </metadata>
+    <files>
+        <file src="Slew.PresentationBus\Slew.PresentationBus\Bin\Release\Slew.PresentationBus.dll" target="lib\portable-win+net40+wp8+wp81+wpa81+MonoAndroid10+MonoTouch10\Slew.PresentationBus.dll" />
+    </files>
+</package>

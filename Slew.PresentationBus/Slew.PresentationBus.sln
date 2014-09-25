@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slew.PresentationBus", "Sle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slew.PresentationBus.Tests", "Slew.PresentationBus.Tests\Slew.PresentationBus.Tests.csproj", "{EF05D191-C733-4117-8649-6AE1105E7FF9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{297275B3-8D97-42B1-992B-5429E485602E}"
+	ProjectSection(SolutionItems) = preProject
+		..\Build.cmd = ..\Build.cmd
+		..\Slew.PresentationBus.nuspec = ..\Slew.PresentationBus.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
