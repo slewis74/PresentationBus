@@ -66,7 +66,9 @@ If you have a subscriber that needs to await further calls, e.g. to load data, t
 		}
 	}
 So in this example you've got a ViewModel somewhere in the UI that knows how to play a music track, e.g using a MediaElement or something like that.  You might have any number of other ViewModels in the UI that represent a track, and might want to request that their track gets played, in which case all they have to do is publish a request.
+
 ##Requestor
+
 NOTE: I [highly encourage Commands over Execute implementations in ViewModels](http://blog.shannonlewis.me/2014/06/xaml-commands/), but for the sake of brevity let's illustrate as follows.
 
 	public class TrackViewModel
@@ -78,9 +80,9 @@ NOTE: I [highly encourage Commands over Execute implementations in ViewModels](h
 		}
 	}
 #Subscribing
-The 
+The last step is to understand how to get the subscribers wired up.  In short, you have to pass an instance of the subscibing class into the PresentationBus' Subscribe method.  In most of the apps I build I'm using an IoC container, and we can get it to do some of the dirty work.
 ##Autofac
-If you're using Autofac you may want something like the following
+If you're using Autofac you may want something like the following to register the bus itself into the container
 
     public class PresentationBusModule : Module
     {
