@@ -1,4 +1,4 @@
-Slew.PresentationBus
+PresentationBus
 ====================
 
 In-process messaging for .NET rich clients.  PresentationBus is compatible with WPF, Windows 8 Store Apps, Windows Phone 8/8.1, Xamarin and Xamarin Forms.

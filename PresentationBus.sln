@@ -1,15 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slew.PresentationBus", "Slew.PresentationBus\Slew.PresentationBus.csproj", "{675C47A5-9FAC-42C8-B286-7EBB1A7B76AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationBus", "PresentationBus\PresentationBus.csproj", "{675C47A5-9FAC-42C8-B286-7EBB1A7B76AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slew.PresentationBus.Tests", "Slew.PresentationBus.Tests\Slew.PresentationBus.Tests.csproj", "{EF05D191-C733-4117-8649-6AE1105E7FF9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationBus.Tests", "PresentationBus.Tests\PresentationBus.Tests.csproj", "{EF05D191-C733-4117-8649-6AE1105E7FF9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{297275B3-8D97-42B1-992B-5429E485602E}"
 	ProjectSection(SolutionItems) = preProject
-		Slew.PresentationBus.nuspec = Slew.PresentationBus.nuspec
+		PresentationBus.nuspec = PresentationBus.nuspec
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

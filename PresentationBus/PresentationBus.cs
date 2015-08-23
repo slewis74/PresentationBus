@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Slew.PresentationBus
+namespace PresentationBus
 {
     public class PresentationBus : IPresentationBus
     {

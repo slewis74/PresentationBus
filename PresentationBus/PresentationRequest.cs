@@ -1,4 +1,4 @@
-﻿namespace Slew.PresentationBus
+﻿namespace PresentationBus
 {
     public class PresentationRequest : IPresentationRequest
     {

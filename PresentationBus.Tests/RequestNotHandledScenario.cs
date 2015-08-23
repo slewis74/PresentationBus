@@ -1,10 +1,11 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Slew.PresentationBus.Tests
+namespace PresentationBus.Tests
 {
     [TestClass]
-    public class RequestHandledScenario
+    public class RequestNotHandledScenario
     {
         private PresentationBus _bus;
         private TestSubscriber _subscriber;
@@ -19,10 +20,18 @@ namespace Slew.PresentationBus.Tests
         }
 
         [TestMethod]
-        public async Task GivenASubscriberThatHandlesTheRequestCorrectlyThenNoErrorOccurs()
+        public async Task GivenASubscriberThatDoesntHandleTheRequestCorrectlyThenAnExceptionIsThrown()
         {
-            await _bus.PublishAsync(new TestRequest());
-            Assert.AreEqual(1, TestSubscriber.HandledCount);
+            var exceptionWasThrown = false;
+            try
+            {
+                await _bus.PublishAsync(new TestRequest());
+            }
+            catch (InvalidOperationException)
+            {
+                exceptionWasThrown = true;
+            }
+            Assert.IsTrue(exceptionWasThrown);
         }
 
         public class TestRequest : PresentationRequest
@@ -30,12 +39,11 @@ namespace Slew.PresentationBus.Tests
 
         public class TestSubscriber : IHandlePresentationRequest<TestRequest>
         {
-            public static int HandledCount { get; set; }
+            public int HandledCount { get; set; }
 
             public void Handle(TestRequest presentationEvent)
             {
                 HandledCount++;
-                presentationEvent.IsHandled = true;
             }
         }
     }

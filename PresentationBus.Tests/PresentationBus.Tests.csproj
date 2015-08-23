@@ -6,8 +6,8 @@
     <ProjectGuid>{EF05D191-C733-4117-8649-6AE1105E7FF9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Slew.PresentationBus.Tests</RootNamespace>
-    <AssemblyName>Slew.PresentationBus.Tests</AssemblyName>
+    <RootNamespace>PresentationBus.Tests</RootNamespace>
+    <AssemblyName>PresentationBus.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -59,9 +59,9 @@
     <Compile Include="UnSubscribedScenario.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Slew.PresentationBus\Slew.PresentationBus.csproj">
+    <ProjectReference Include="..\PresentationBus\PresentationBus.csproj">
       <Project>{675c47a5-9fac-42c8-b286-7ebb1a7b76ad}</Project>
-      <Name>Slew.PresentationBus</Name>
+      <Name>PresentationBus</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

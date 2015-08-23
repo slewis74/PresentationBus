@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Slew.PresentationBus.Tests
+namespace PresentationBus.Tests
 {
     [TestClass]
-    public class UnSubscribedScenario
+    public class RequestHandledScenario
     {
         private PresentationBus _bus;
         private TestSubscriber _subscriber;
@@ -19,25 +19,23 @@ namespace Slew.PresentationBus.Tests
         }
 
         [TestMethod]
-        public async Task GivenASubscriberThatHasBeenUnsubscribedTheEventDoesntGetHandled()
+        public async Task GivenASubscriberThatHandlesTheRequestCorrectlyThenNoErrorOccurs()
         {
-            _bus.UnSubscribe(_subscriber);
-
-            await _bus.PublishAsync(new TestEvent());
-
-            Assert.AreEqual(0, TestSubscriber.HandledCount);
+            await _bus.PublishAsync(new TestRequest());
+            Assert.AreEqual(1, TestSubscriber.HandledCount);
         }
 
-        public class TestEvent : PresentationEvent
+        public class TestRequest : PresentationRequest
         { }
 
-        public class TestSubscriber : IHandlePresentationEvent<TestEvent>
+        public class TestSubscriber : IHandlePresentationRequest<TestRequest>
         {
             public static int HandledCount { get; set; }
 
-            public void Handle(TestEvent presentationEvent)
+            public void Handle(TestRequest presentationEvent)
             {
                 HandledCount++;
+                presentationEvent.IsHandled = true;
             }
         }
     }

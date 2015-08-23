@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Slew.PresentationBus.Tests
+namespace PresentationBus.Tests
 {
     [TestClass]
-    public class NoneMandatoryRequestNotHandledScenario
+    public class RequestWithoutSubscribersScenario
     {
         private PresentationBus _bus;
 
@@ -16,7 +16,7 @@ namespace Slew.PresentationBus.Tests
         }
 
         [TestMethod]
-        public async Task GivenANoneMandatoryRequestAndNoSubscribersThenNoExceptionIsThrown()
+        public async Task GivenARequestAndNoSubscribersAnExceptionIsThrown()
         {
             var exceptionWasThrown = false;
             try
@@ -27,15 +27,10 @@ namespace Slew.PresentationBus.Tests
             {
                 exceptionWasThrown = true;
             }
-            Assert.IsFalse(exceptionWasThrown);
+            Assert.IsTrue(exceptionWasThrown);
         }
 
         public class TestRequest : PresentationRequest
-        {
-            public TestRequest()
-            {
-                MustBeHandled = false;
-            }
-        }
+        { }
     }
 }

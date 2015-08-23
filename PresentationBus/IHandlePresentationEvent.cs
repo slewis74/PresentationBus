@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Slew.PresentationBus
+namespace PresentationBus
 {
     public interface IHandlePresentationEvent<in T> : IHandlePresentationEvents
         where T : IPresentationEvent
