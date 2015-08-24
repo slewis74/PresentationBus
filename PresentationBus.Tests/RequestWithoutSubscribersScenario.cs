@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,21 +17,16 @@ namespace PresentationBus.Tests
         }
 
         [TestMethod]
-        public async Task GivenARequestAndNoSubscribersAnExceptionIsThrown()
+        public async Task GivenARequestAndNoSubscribersAnEmptyResponseListIsReturned()
         {
-            var exceptionWasThrown = false;
-            try
-            {
-                await _bus.PublishAsync(new TestRequest());
-            }
-            catch (InvalidOperationException)
-            {
-                exceptionWasThrown = true;
-            }
-            Assert.IsTrue(exceptionWasThrown);
+            var results = await _bus.MulticastRequestAsync<TestRequest, TestResponse>(new TestRequest());
+            Assert.IsFalse(results.Any());
         }
 
-        public class TestRequest : PresentationRequest
+        public class TestRequest : PresentationRequest<TestResponse>
+        { }
+
+        public class TestResponse : IPresentationResponse
         { }
     }
 }

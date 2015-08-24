@@ -8,59 +8,126 @@ namespace PresentationBus
 {
     public class PresentationBus : IPresentationBus
     {
-        private readonly Dictionary<Type, Subscribers> _subscribersByEventType;
+        private readonly Dictionary<Type, EventSubscribers> _subscribersByEventType;
+        private readonly Dictionary<Type, RequestSubscribers> _subscribersByRequestType;
  
         public PresentationBus()
         {
-            _subscribersByEventType = new Dictionary<Type, Subscribers>();
+            _subscribersByEventType = new Dictionary<Type, EventSubscribers>();
+            _subscribersByRequestType = new Dictionary<Type, RequestSubscribers>();
         }
 
         public void Subscribe<T>(IHandlePresentationEvent<T> handler) where T : IPresentationEvent
         {
-            Subscribe(typeof (T), handler);
+            SubscribeForEvents(typeof (T), handler);
         }
         public void Subscribe<T>(IHandlePresentationEventAsync<T> handler) where T : IPresentationEvent
         {
-            Subscribe(typeof (T), handler);
+            SubscribeForEvents(typeof (T), handler);
         }
 
         public void Subscribe(IHandlePresentationEvents instance)
         {
-            ForEachHandledEvent(instance, x => Subscribe(x, instance));
+            ForEachHandledEvent(instance, x => SubscribeForEvents(x, instance));
         }
 
-        private void Subscribe(Type eventType, object instance)
+        private void SubscribeForEvents(Type eventType, object instance)
         {
-            Subscribers subscribersForEventType;
+            EventSubscribers eventSubscribersForEventType;
 
             if (_subscribersByEventType.ContainsKey(eventType))
             {
-                subscribersForEventType = _subscribersByEventType[eventType];
+                eventSubscribersForEventType = _subscribersByEventType[eventType];
             }
             else
             {
-                subscribersForEventType = new Subscribers();
-                _subscribersByEventType.Add(eventType, subscribersForEventType);
+                eventSubscribersForEventType = new EventSubscribers();
+                _subscribersByEventType.Add(eventType, eventSubscribersForEventType);
             }
 
-            subscribersForEventType.AddSubscriber(instance);
+            eventSubscribersForEventType.AddSubscriber(instance);
         }
 
         public void UnSubscribe<T>(IHandlePresentationEvent<T> handler) where T : IPresentationEvent
         {
-            UnSubscribe(typeof (T), handler);
+            UnSubscribeForEvents(typeof (T), handler);
+        }
+        public void UnSubscribe<T>(IHandlePresentationEventAsync<T> handler) where T : IPresentationEvent
+        {
+            UnSubscribeForEvents(typeof (T), handler);
         }
 
         public void UnSubscribe(IHandlePresentationEvents instance)
         {
-            ForEachHandledEvent(instance, x => UnSubscribe(x, instance));
+            ForEachHandledEvent(instance, x => UnSubscribeForEvents(x, instance));
         }
 
-        private void UnSubscribe(Type eventType, object handler)
+        private void UnSubscribeForEvents(Type eventType, object handler)
         {
             if (_subscribersByEventType.ContainsKey(eventType))
             {
                 _subscribersByEventType[eventType].RemoveSubscriber(handler);
+            }
+        }
+
+        public void Subscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler)
+            where TRequest : IPresentationRequest<TResponse>
+            where TResponse : IPresentationResponse
+        {
+            SubscribeForRequests(typeof (TRequest), handler);
+        }
+        public void Subscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler)
+            where TRequest : IPresentationRequest<TResponse>
+            where TResponse : IPresentationResponse
+        {
+            SubscribeForRequests(typeof (TRequest), handler);
+        }
+
+        public void Subscribe(IHandlePresentationRequests instance)
+        {
+            ForEachHandledRequest(instance, x => SubscribeForRequests(x, instance));
+        }
+
+        private void SubscribeForRequests(Type requestType, object instance)
+        {
+            RequestSubscribers requestSubscribersForRequestType;
+
+            if (_subscribersByRequestType.ContainsKey(requestType))
+            {
+                requestSubscribersForRequestType = _subscribersByRequestType[requestType];
+            }
+            else
+            {
+                requestSubscribersForRequestType = new RequestSubscribers();
+                _subscribersByRequestType.Add(requestType, requestSubscribersForRequestType);
+            }
+
+            requestSubscribersForRequestType.AddSubscriber(instance);
+        }
+
+        public void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler) 
+            where TRequest : IPresentationRequest<TResponse>
+            where TResponse : IPresentationResponse
+        {
+            UnSubscribeForRequests(typeof (TRequest), handler);
+        }
+        public void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler) 
+            where TRequest : IPresentationRequest<TResponse>
+            where TResponse : IPresentationResponse
+        {
+            UnSubscribeForRequests(typeof (TRequest), handler);
+        }
+
+        public void UnSubscribe(IHandlePresentationRequests instance)
+        {
+            ForEachHandledRequest(instance, x => UnSubscribeForRequests(x, instance));
+        }
+
+        private void UnSubscribeForRequests(Type requestType, object handler)
+        {
+            if (_subscribersByRequestType.ContainsKey(requestType))
+            {
+                _subscribersByRequestType[requestType].RemoveSubscriber(handler);
             }
         }
 
@@ -72,14 +139,22 @@ namespace PresentationBus
             {
                 await _subscribersByEventType[subscribedType].PublishEvent(presentationEvent);
             }
-
-            var presentationRequest = presentationEvent as IPresentationRequest;
-            if (presentationRequest != null && presentationRequest.MustBeHandled && presentationRequest.IsHandled == false)
-            {
-                throw new InvalidOperationException(string.Format("Request {0} was not handled.", presentationEvent.GetType().Name));
-            }
         }
 
+        public async Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(TRequest request)
+            where TRequest : IPresentationRequest<TResponse>
+            where TResponse : IPresentationResponse
+        {
+            var type = request.GetType();
+            var typeInfo = type.GetTypeInfo();
+            var results = new List<TResponse>();
+            foreach (var subscribedType in _subscribersByRequestType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
+            {
+                var result = await _subscribersByRequestType[subscribedType].PublishRequest<TRequest,TResponse>(request);
+                results.AddRange(result);
+            }
+            return results;
+        }
 
         private void ForEachHandledEvent(IHandlePresentationEvents instance, Action<Type> callback)
         {
@@ -95,11 +170,25 @@ namespace PresentationBus
             }
         }
 
-        internal class Subscribers
+        private void ForEachHandledRequest(IHandlePresentationRequests instance, Action<Type> callback)
+        {
+            var handlesRequestsType = typeof(IHandlePresentationRequests);
+
+            var type = instance.GetType();
+
+            var interfaceTypes = type.GetTypeInfo().ImplementedInterfaces;
+            foreach (var interfaceType in interfaceTypes.Where(x => x.IsConstructedGenericType && handlesRequestsType.GetTypeInfo().IsAssignableFrom(x.GetTypeInfo())))
+            {
+                var eventType = interfaceType.GenericTypeArguments.First();
+                callback(eventType);
+            }
+        }
+
+        internal class EventSubscribers
         {
             private readonly List<WeakReference> _subscribers; 
 
-            public Subscribers()
+            public EventSubscribers()
             {
                 _subscribers = new List<WeakReference>();
             }
@@ -136,24 +225,91 @@ namespace PresentationBus
             public async Task<bool> PublishEvent<T>(T presentationEvent) where T : IPresentationEvent
             {
                 var anySubscribersStillListening = false;
-                var presentationRequest = presentationEvent as IPresentationRequest;
 
                 foreach (var subscriber in _subscribers.Where(s => s.Target != null))
                 {
-                    if (presentationRequest == null || presentationRequest.IsHandled == false)
-                    {
-                        var syncHandler = subscriber.Target as IHandlePresentationEvent<T>;
-                        if (syncHandler != null)
-                            syncHandler.Handle(presentationEvent);
+                    var syncHandler = subscriber.Target as IHandlePresentationEvent<T>;
+                    if (syncHandler != null)
+                        syncHandler.Handle(presentationEvent);
                         
-                        var asyncHandler = subscriber.Target as IHandlePresentationEventAsync<T>;
-                        if (asyncHandler != null)
-                            await asyncHandler.HandleAsync(presentationEvent);
-                    }
+                    var asyncHandler = subscriber.Target as IHandlePresentationEventAsync<T>;
+                    if (asyncHandler != null)
+                        await asyncHandler.HandleAsync(presentationEvent);
+
                     anySubscribersStillListening = true;
                 }
 
                 return anySubscribersStillListening;
+            }
+        }
+
+        internal class RequestSubscribers
+        {
+            private readonly List<WeakReference> _subscribers; 
+
+            public RequestSubscribers()
+            {
+                _subscribers = new List<WeakReference>();
+            }
+
+            public void AddSubscriber<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> instance)
+                where TRequest : IPresentationRequest<TResponse>
+                where TResponse : IPresentationResponse
+            {
+                AddSubscriber((object)instance);
+            }
+            public void AddSubscriber<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> instance)
+                where TRequest : IPresentationRequest<TResponse>
+                where TResponse : IPresentationResponse
+            {
+                AddSubscriber((object)instance);
+            }
+
+            public void AddSubscriber(object instance)
+            {
+                if (_subscribers.Any(s => s.Target == instance))
+                    return;
+
+                _subscribers.Add(new WeakReference(instance));
+            }
+
+            public void RemoveSubscriber<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> instance)
+                where TRequest : IPresentationRequest<TResponse>
+                where TResponse : IPresentationResponse
+            {
+                RemoveSubscriber((object)instance);
+            }
+            public void RemoveSubscriber(object instance)
+            {
+                var subscriber = _subscribers.SingleOrDefault(s => s.Target == instance);
+                if (subscriber != null)
+                {
+                    _subscribers.Remove(subscriber);
+                }
+            }
+
+            public async Task<IEnumerable<TResponse>> PublishRequest<TRequest, TResponse>(TRequest request)
+                where TRequest : IPresentationRequest<TResponse>
+                where TResponse : IPresentationResponse
+            {
+                var results = new List<TResponse>();
+
+                foreach (var subscriber in _subscribers.Where(s => s.Target != null))
+                {
+                    var syncHandler = subscriber.Target as IHandlePresentationRequest<TRequest, TResponse>;
+                    if (syncHandler != null)
+                    {
+                        results.Add(syncHandler.Handle(request));
+                    }
+
+                    var asyncHandler = subscriber.Target as IHandlePresentationRequestAsync<TRequest, TResponse>;
+                    if (asyncHandler != null)
+                    {
+                        results.Add(await asyncHandler.HandleAsync(request));
+                    }
+                }
+
+                return results;
             }
         }
     }

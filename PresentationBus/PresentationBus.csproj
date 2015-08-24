@@ -40,9 +40,11 @@
     <Compile Include="IHandlePresentationEvent.cs" />
     <Compile Include="IHandlePresentationEvents.cs" />
     <Compile Include="IHandlePresentationRequest.cs" />
+    <Compile Include="IHandlePresentationRequests.cs" />
     <Compile Include="IPresentationBus.cs" />
     <Compile Include="IPresentationEvent.cs" />
     <Compile Include="IPresentationRequest.cs" />
+    <Compile Include="IPresentationResponse.cs" />
     <Compile Include="PresentationBus.cs" />
     <Compile Include="PresentationEvent.cs" />
     <Compile Include="PresentationRequest.cs" />

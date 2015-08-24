@@ -1,15 +1,7 @@
 namespace PresentationBus
 {
-    public interface IPresentationRequest : IPresentationEvent
+    public interface IPresentationRequest<TResponse>
+        where TResponse : IPresentationResponse
     {
-        /// <summary>
-        /// Specifies whether the event must be handled.
-        /// </summary>
-        bool MustBeHandled { get; }
-
-        /// <summary>
-        /// Indicates whether the event has been handled.
-        /// </summary>
-        bool IsHandled { get; set; }
     }
 }

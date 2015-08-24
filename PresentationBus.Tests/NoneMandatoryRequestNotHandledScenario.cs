@@ -21,7 +21,7 @@ namespace PresentationBus.Tests
             var exceptionWasThrown = false;
             try
             {
-                await _bus.PublishAsync(new TestRequest());
+                await _bus.MulticastRequestAsync<TestRequest, TestResponse>(new TestRequest());
             }
             catch (InvalidOperationException)
             {
@@ -30,12 +30,14 @@ namespace PresentationBus.Tests
             Assert.IsFalse(exceptionWasThrown);
         }
 
-        public class TestRequest : PresentationRequest
+        public class TestRequest : PresentationRequest<TestResponse>
         {
             public TestRequest()
             {
-                MustBeHandled = false;
             }
         }
+
+        public class TestResponse : IPresentationResponse
+        { }
     }
 }

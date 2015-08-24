@@ -52,8 +52,9 @@
   <ItemGroup>
     <Compile Include="HasSubscriberScenario.cs" />
     <Compile Include="NoneMandatoryRequestNotHandledScenario.cs" />
-    <Compile Include="RequestHandledScenario.cs" />
-    <Compile Include="RequestNotHandledScenario.cs" />
+    <Compile Include="RequestHandledByMultipleHandlersScenario.cs" />
+    <Compile Include="RequestHandledBySingleHandlerScenario.cs" />
+    <Compile Include="RequestHandledBySyncAndAsyncHandlersScenario.cs" />
     <Compile Include="RequestWithoutSubscribersScenario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnSubscribedScenario.cs" />
