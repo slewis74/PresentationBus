@@ -10,10 +10,10 @@ namespace PresentationBus
         void Subscribe(IHandlePresentationEvents instance);
 
         void Subscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse;
         void Subscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse;
         void Subscribe(IHandlePresentationRequests instance);
 
@@ -22,17 +22,17 @@ namespace PresentationBus
         void UnSubscribe(IHandlePresentationEvents instance);
 
         void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse;
         void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse;
         void UnSubscribe(IHandlePresentationRequests instance);
 
         Task PublishAsync<T>(T presentationEvent) where T : IPresentationEvent;
 
-        Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(TRequest request)
-            where TRequest : IPresentationRequest<TResponse>
+        Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse;
     }
 }

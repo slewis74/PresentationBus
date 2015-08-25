@@ -71,13 +71,13 @@ namespace PresentationBus
         }
 
         public void Subscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
             SubscribeForRequests(typeof (TRequest), handler);
         }
         public void Subscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
             SubscribeForRequests(typeof (TRequest), handler);
@@ -106,13 +106,13 @@ namespace PresentationBus
         }
 
         public void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler) 
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
             UnSubscribeForRequests(typeof (TRequest), handler);
         }
         public void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler) 
-            where TRequest : IPresentationRequest<TResponse>
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
             UnSubscribeForRequests(typeof (TRequest), handler);
@@ -141,8 +141,8 @@ namespace PresentationBus
             }
         }
 
-        public async Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(TRequest request)
-            where TRequest : IPresentationRequest<TResponse>
+        public async Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
+            where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
             var type = request.GetType();
@@ -150,7 +150,7 @@ namespace PresentationBus
             var results = new List<TResponse>();
             foreach (var subscribedType in _subscribersByRequestType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
             {
-                var result = await _subscribersByRequestType[subscribedType].PublishRequest<TRequest,TResponse>(request);
+                var result = await _subscribersByRequestType[subscribedType].PublishRequest<TRequest,TResponse>((TRequest)request);
                 results.AddRange(result);
             }
             return results;
@@ -253,13 +253,13 @@ namespace PresentationBus
             }
 
             public void AddSubscriber<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> instance)
-                where TRequest : IPresentationRequest<TResponse>
+                where TRequest : IPresentationRequest<TRequest, TResponse>
                 where TResponse : IPresentationResponse
             {
                 AddSubscriber((object)instance);
             }
             public void AddSubscriber<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> instance)
-                where TRequest : IPresentationRequest<TResponse>
+                where TRequest : IPresentationRequest<TRequest, TResponse>
                 where TResponse : IPresentationResponse
             {
                 AddSubscriber((object)instance);
@@ -274,7 +274,7 @@ namespace PresentationBus
             }
 
             public void RemoveSubscriber<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> instance)
-                where TRequest : IPresentationRequest<TResponse>
+                where TRequest : IPresentationRequest<TRequest, TResponse>
                 where TResponse : IPresentationResponse
             {
                 RemoveSubscriber((object)instance);
@@ -289,7 +289,7 @@ namespace PresentationBus
             }
 
             public async Task<IEnumerable<TResponse>> PublishRequest<TRequest, TResponse>(TRequest request)
-                where TRequest : IPresentationRequest<TResponse>
+                where TRequest : IPresentationRequest<TRequest, TResponse>
                 where TResponse : IPresentationResponse
             {
                 var results = new List<TResponse>();

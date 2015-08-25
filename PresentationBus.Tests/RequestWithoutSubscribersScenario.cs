@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -19,11 +18,11 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenARequestAndNoSubscribersAnEmptyResponseListIsReturned()
         {
-            var results = await _bus.MulticastRequestAsync<TestRequest, TestResponse>(new TestRequest());
+            var results = await _bus.MulticastRequestAsync(new TestRequest());
             Assert.IsFalse(results.Any());
         }
 
-        public class TestRequest : PresentationRequest<TestResponse>
+        public class TestRequest : PresentationRequest<TestRequest, TestResponse>
         { }
 
         public class TestResponse : IPresentationResponse
