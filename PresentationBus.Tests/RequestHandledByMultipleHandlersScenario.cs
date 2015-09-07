@@ -23,17 +23,25 @@ namespace PresentationBus.Tests
         }
 
         [TestMethod]
-        public async Task GivenSubscribersThatHandleTheRequestHarryIsReturned()
+        public async Task GivenSubscribersThatHandleTheRequestAResultIsReturned()
         {
-            var results = await _bus.MulticastRequestAsync(new TestRequest());
-            Assert.IsNotNull(results.SingleOrDefault(x => x.Name == "Harry"));
+            var result = await _bus.Request(new TestRequest());
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public async Task GivenSubscribersThatHandleTheRequestFredIsReturned()
+        public async Task GivenSubscribersThatHandleTheRequestHarryIsReturned()
         {
-            var results = await _bus.MulticastRequestAsync(new TestRequest());
-            Assert.IsNotNull(results.SingleOrDefault(x => x.Name == "Fred"));
+            var result = await _bus.Request(new TestRequest());
+            Assert.AreEqual("Harry", result.Name);
+        }
+
+        [TestMethod]
+        public async Task GivenSubscribersThatHandleTheRequestWhenOneUnsubscribesTheOtherHandlesTheRequest()
+        {
+            _bus.UnSubscribe(_subscriber1);
+            var result = await _bus.Request(new TestRequest());
+            Assert.AreEqual("Fred", result.Name);
         }
 
         public class TestRequest : PresentationRequest<TestRequest, TestResponse>

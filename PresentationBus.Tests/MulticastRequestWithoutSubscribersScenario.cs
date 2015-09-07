@@ -1,11 +1,10 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PresentationBus.Tests
 {
-    [TestClass]
-    public class RequestWithoutSubscribersScenario
+    public class MulticastRequestWithoutSubscribersScenario
     {
         private PresentationBus _bus;
 
@@ -16,10 +15,10 @@ namespace PresentationBus.Tests
         }
 
         [TestMethod]
-        public async Task GivenARequestAndNoSubscribersANullIsReturned()
+        public async Task GivenARequestAndNoSubscribersAnEmptyResponseListIsReturned()
         {
-            var result = await _bus.Request(new TestRequest());
-            Assert.IsNull(result);
+            var results = await _bus.MulticastRequest(new TestRequest());
+            Assert.IsFalse(results.Any());
         }
 
         public class TestRequest : PresentationRequest<TestRequest, TestResponse>

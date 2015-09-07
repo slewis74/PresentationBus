@@ -21,7 +21,7 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenASubscriberTheEventGetsHandled()
         {
-            await _bus.PublishAsync(new TestEvent());
+            await _bus.Publish(new TestEvent());
         }
 
         public class TestEvent : PresentationEvent

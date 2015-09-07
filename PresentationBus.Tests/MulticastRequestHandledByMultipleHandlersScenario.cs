@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace PresentationBus.Tests
 {
     [TestClass]
-    public class RequestHandledBySyncAndAsyncHandlersScenario
+    public class MulticastRequestHandledByMultipleHandlersScenario
     {
         private PresentationBus _bus;
         private TestSubscriber1 _subscriber1;
@@ -25,28 +25,21 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestHarryIsReturned()
         {
-            var result = await _bus.Request(new TestRequest());
-            Assert.AreEqual("Harry", result.Name);
+            var results = await _bus.MulticastRequest(new TestRequest());
+            Assert.IsNotNull(results.SingleOrDefault(x => x.Name == "Harry"));
         }
 
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestFredIsReturned()
         {
-            var result = await _bus.Request(new TestRequestA());
-            Assert.AreEqual("Fred", result.Name);
+            var results = await _bus.MulticastRequest(new TestRequest());
+            Assert.IsNotNull(results.SingleOrDefault(x => x.Name == "Fred"));
         }
 
         public class TestRequest : PresentationRequest<TestRequest, TestResponse>
         { }
 
         public class TestResponse : IPresentationResponse
-        {
-            public string Name { get; set; }
-        }
-        public class TestRequestA : PresentationRequest<TestRequestA, TestResponseA>
-        { }
-
-        public class TestResponseA : IPresentationResponse
         {
             public string Name { get; set; }
         }
@@ -58,12 +51,11 @@ namespace PresentationBus.Tests
                 return new TestResponse { Name = "Harry" };
             }
         }
-        public class TestSubscriber2 : IHandlePresentationRequestAsync<TestRequestA, TestResponseA>
+        public class TestSubscriber2 : IHandlePresentationRequest<TestRequest, TestResponse>
         {
-            public async Task<TestResponseA> HandleAsync(TestRequestA request)
+            public TestResponse Handle(TestRequest presentationEvent)
             {
-                var result = await Task.Run(() => new TestResponseA { Name = "Fred" });
-                return result;
+                return new TestResponse { Name = "Fred" };
             }
         }
     }

@@ -51,6 +51,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="HasSubscriberScenario.cs" />
+    <Compile Include="MulticastRequestHandledByMultipleHandlersScenario.cs" />
+    <Compile Include="MulticastRequestHandledBySyncAndAsyncHandlersScenario.cs" />
+    <Compile Include="MulticastRequestWithoutSubscribersScenario.cs" />
     <Compile Include="NoneMandatoryRequestNotHandledScenario.cs" />
     <Compile Include="RequestHandledByMultipleHandlersScenario.cs" />
     <Compile Include="RequestHandledBySingleHandlerScenario.cs" />

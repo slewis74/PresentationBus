@@ -37,11 +37,16 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IHandlePresentationCommand.cs" />
+    <Compile Include="IHandlePresentationCommands.cs" />
     <Compile Include="IHandlePresentationEvent.cs" />
     <Compile Include="IHandlePresentationEvents.cs" />
+    <Compile Include="IHandlePresentationMessages.cs" />
     <Compile Include="IHandlePresentationRequest.cs" />
     <Compile Include="IHandlePresentationRequests.cs" />
     <Compile Include="IPresentationBus.cs" />
+    <Compile Include="IPresentationBusConfiguration.cs" />
+    <Compile Include="IPresentationCommand.cs" />
     <Compile Include="IPresentationEvent.cs" />
     <Compile Include="IPresentationRequest.cs" />
     <Compile Include="IPresentationResponse.cs" />

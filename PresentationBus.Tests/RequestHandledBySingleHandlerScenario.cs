@@ -22,7 +22,7 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenASubscriberThatHandlesTheRequestTheResponseIsReturned()
         {
-            var results = await _bus.MulticastRequestAsync(new TestRequest());
+            var results = await _bus.MulticastRequest(new TestRequest());
             Assert.AreEqual("Harry", results.Single().Name);
         }
 

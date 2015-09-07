@@ -6,27 +6,50 @@ using System.Threading.Tasks;
 
 namespace PresentationBus
 {
-    public class PresentationBus : IPresentationBus
+    public class PresentationBus : IPresentationBus, IPresentationBusConfiguration
     {
         private readonly Dictionary<Type, EventSubscribers> _subscribersByEventType;
         private readonly Dictionary<Type, RequestSubscribers> _subscribersByRequestType;
- 
+        private readonly Dictionary<Type, CommandSubscribers> _subscribersByCommandType;
+
         public PresentationBus()
         {
             _subscribersByEventType = new Dictionary<Type, EventSubscribers>();
             _subscribersByRequestType = new Dictionary<Type, RequestSubscribers>();
+            _subscribersByCommandType = new Dictionary<Type, CommandSubscribers>();
         }
 
-        public void Subscribe<T>(IHandlePresentationEvent<T> handler) where T : IPresentationEvent
+        public void Subscribe(IHandlePresentationMessages instance)
         {
-            SubscribeForEvents(typeof (T), handler);
-        }
-        public void Subscribe<T>(IHandlePresentationEventAsync<T> handler) where T : IPresentationEvent
-        {
-            SubscribeForEvents(typeof (T), handler);
+            var handlesEvents = instance as IHandlePresentationEvents;
+            if (handlesEvents != null)
+                Subscribe(handlesEvents);
+
+            var handlesCommands = instance as IHandlePresentationCommands;
+            if (handlesCommands != null)
+                Subscribe(handlesCommands);
+
+            var handlesRequests = instance as IHandlePresentationRequests;
+            if (handlesRequests != null)
+                Subscribe(handlesRequests);
         }
 
-        public void Subscribe(IHandlePresentationEvents instance)
+        public void UnSubscribe(IHandlePresentationMessages instance)
+        {
+            var handlesEvents = instance as IHandlePresentationEvents;
+            if (handlesEvents != null)
+                UnSubscribe(handlesEvents);
+
+            var handlesCommands = instance as IHandlePresentationCommands;
+            if (handlesCommands != null)
+                UnSubscribe(handlesCommands);
+
+            var handlesRequests = instance as IHandlePresentationRequests;
+            if (handlesRequests != null)
+                UnSubscribe(handlesRequests);
+        }
+
+        private void Subscribe(IHandlePresentationEvents instance)
         {
             ForEachHandledEvent(instance, x => SubscribeForEvents(x, instance));
         }
@@ -48,16 +71,7 @@ namespace PresentationBus
             eventSubscribersForEventType.AddSubscriber(instance);
         }
 
-        public void UnSubscribe<T>(IHandlePresentationEvent<T> handler) where T : IPresentationEvent
-        {
-            UnSubscribeForEvents(typeof (T), handler);
-        }
-        public void UnSubscribe<T>(IHandlePresentationEventAsync<T> handler) where T : IPresentationEvent
-        {
-            UnSubscribeForEvents(typeof (T), handler);
-        }
-
-        public void UnSubscribe(IHandlePresentationEvents instance)
+        private void UnSubscribe(IHandlePresentationEvents instance)
         {
             ForEachHandledEvent(instance, x => UnSubscribeForEvents(x, instance));
         }
@@ -70,20 +84,7 @@ namespace PresentationBus
             }
         }
 
-        public void Subscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TRequest, TResponse>
-            where TResponse : IPresentationResponse
-        {
-            SubscribeForRequests(typeof (TRequest), handler);
-        }
-        public void Subscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TRequest, TResponse>
-            where TResponse : IPresentationResponse
-        {
-            SubscribeForRequests(typeof (TRequest), handler);
-        }
-
-        public void Subscribe(IHandlePresentationRequests instance)
+        private void Subscribe(IHandlePresentationRequests instance)
         {
             ForEachHandledRequest(instance, x => SubscribeForRequests(x, instance));
         }
@@ -105,20 +106,7 @@ namespace PresentationBus
             requestSubscribersForRequestType.AddSubscriber(instance);
         }
 
-        public void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler) 
-            where TRequest : IPresentationRequest<TRequest, TResponse>
-            where TResponse : IPresentationResponse
-        {
-            UnSubscribeForRequests(typeof (TRequest), handler);
-        }
-        public void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler) 
-            where TRequest : IPresentationRequest<TRequest, TResponse>
-            where TResponse : IPresentationResponse
-        {
-            UnSubscribeForRequests(typeof (TRequest), handler);
-        }
-
-        public void UnSubscribe(IHandlePresentationRequests instance)
+        private void UnSubscribe(IHandlePresentationRequests instance)
         {
             ForEachHandledRequest(instance, x => UnSubscribeForRequests(x, instance));
         }
@@ -131,17 +119,46 @@ namespace PresentationBus
             }
         }
 
-        public async Task PublishAsync<T>(T presentationEvent) where T : IPresentationEvent
+        public async Task Publish<TEvent>(TEvent presentationEvent) where TEvent : IPresentationEvent
         {
             var type = presentationEvent.GetType();
             var typeInfo = type.GetTypeInfo();
             foreach (var subscribedType in _subscribersByEventType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
             {
-                await _subscribersByEventType[subscribedType].PublishEvent(presentationEvent);
+                await _subscribersByEventType[subscribedType].Publish(presentationEvent);
             }
         }
 
-        public async Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
+        public async Task Send<TCommand>(TCommand presentationEvent) where TCommand : IPresentationCommand
+        {
+            var type = presentationEvent.GetType();
+            var typeInfo = type.GetTypeInfo();
+            foreach (var subscribedType in _subscribersByCommandType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
+            {
+                await _subscribersByCommandType[subscribedType].Send(presentationEvent);
+            }
+        }
+
+        public async Task<TResponse> Request<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
+            where TRequest : IPresentationRequest<TRequest, TResponse>
+            where TResponse : IPresentationResponse
+        {
+            var type = request.GetType();
+            var typeInfo = type.GetTypeInfo();
+            var result = default(TResponse);
+            foreach (var subscribedType in _subscribersByRequestType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
+            {
+                var results = await _subscribersByRequestType[subscribedType].PublishRequest<TRequest, TResponse>((TRequest)request);
+                result = results.FirstOrDefault();
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return result;
+        }
+
+        public async Task<IEnumerable<TResponse>> MulticastRequest<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
             where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
@@ -222,17 +239,17 @@ namespace PresentationBus
                 }
             }
 
-            public async Task<bool> PublishEvent<T>(T presentationEvent) where T : IPresentationEvent
+            public async Task<bool> Publish<TEvent>(TEvent presentationEvent) where TEvent : IPresentationEvent
             {
                 var anySubscribersStillListening = false;
 
                 foreach (var subscriber in _subscribers.Where(s => s.Target != null))
                 {
-                    var syncHandler = subscriber.Target as IHandlePresentationEvent<T>;
+                    var syncHandler = subscriber.Target as IHandlePresentationEvent<TEvent>;
                     if (syncHandler != null)
                         syncHandler.Handle(presentationEvent);
                         
-                    var asyncHandler = subscriber.Target as IHandlePresentationEventAsync<T>;
+                    var asyncHandler = subscriber.Target as IHandlePresentationEventAsync<TEvent>;
                     if (asyncHandler != null)
                         await asyncHandler.HandleAsync(presentationEvent);
 
@@ -312,5 +329,65 @@ namespace PresentationBus
                 return results;
             }
         }
+
+        internal class CommandSubscribers
+        {
+            private readonly List<WeakReference> _subscribers;
+
+            public CommandSubscribers()
+            {
+                _subscribers = new List<WeakReference>();
+            }
+
+            public void AddSubscriber<T>(IHandlePresentationCommand<T> instance) where T : IPresentationCommand
+            {
+                AddSubscriber((object)instance);
+            }
+            public void AddSubscriber<T>(IHandlePresentationCommandAsync<T> instance) where T : IPresentationCommand
+            {
+                AddSubscriber((object)instance);
+            }
+            public void AddSubscriber(object instance)
+            {
+                if (_subscribers.Any(s => s.Target == instance))
+                    return;
+
+                _subscribers.Add(new WeakReference(instance));
+            }
+
+            public void RemoveSubscriber<T>(IHandlePresentationCommand<T> instance) where T : IPresentationCommand
+            {
+                RemoveSubscriber((object)instance);
+            }
+            public void RemoveSubscriber(object instance)
+            {
+                var subscriber = _subscribers.SingleOrDefault(s => s.Target == instance);
+                if (subscriber != null)
+                {
+                    _subscribers.Remove(subscriber);
+                }
+            }
+
+            public async Task<bool> Send<TEvent>(TEvent presentationEvent) where TEvent : IPresentationCommand
+            {
+                var anySubscribersStillListening = false;
+
+                foreach (var subscriber in _subscribers.Where(s => s.Target != null))
+                {
+                    var syncHandler = subscriber.Target as IHandlePresentationCommand<TEvent>;
+                    if (syncHandler != null)
+                        syncHandler.Handle(presentationEvent);
+
+                    var asyncHandler = subscriber.Target as IHandlePresentationCommandAsync<TEvent>;
+                    if (asyncHandler != null)
+                        await asyncHandler.HandleAsync(presentationEvent);
+
+                    anySubscribersStillListening = true;
+                }
+
+                return anySubscribersStillListening;
+            }
+        }
+
     }
 }

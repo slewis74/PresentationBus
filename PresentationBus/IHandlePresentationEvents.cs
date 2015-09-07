@@ -1,5 +1,5 @@
 namespace PresentationBus
 {
-    public interface IHandlePresentationEvents
-    {}
+    public interface IHandlePresentationEvents : IHandlePresentationMessages
+    { }
 }

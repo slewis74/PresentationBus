@@ -5,33 +5,15 @@ namespace PresentationBus
 {
     public interface IPresentationBus
     {
-        void Subscribe<T>(IHandlePresentationEvent<T> handler) where T : IPresentationEvent;
-        void Subscribe<T>(IHandlePresentationEventAsync<T> handler) where T : IPresentationEvent;
-        void Subscribe(IHandlePresentationEvents instance);
+        Task Send<TCommand>(TCommand command) where TCommand : IPresentationCommand;
 
-        void Subscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler)
+        Task Publish<TEvent>(TEvent presentationEvent) where TEvent : IPresentationEvent;
+
+        Task<TResponse> Request<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
             where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse;
-        void Subscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TRequest, TResponse>
-            where TResponse : IPresentationResponse;
-        void Subscribe(IHandlePresentationRequests instance);
 
-        void UnSubscribe<T>(IHandlePresentationEvent<T> handler) where T : IPresentationEvent;
-        void UnSubscribe<T>(IHandlePresentationEventAsync<T> handler) where T : IPresentationEvent;
-        void UnSubscribe(IHandlePresentationEvents instance);
-
-        void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequest<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TRequest, TResponse>
-            where TResponse : IPresentationResponse;
-        void UnSubscribe<TRequest, TResponse>(IHandlePresentationRequestAsync<TRequest, TResponse> handler)
-            where TRequest : IPresentationRequest<TRequest, TResponse>
-            where TResponse : IPresentationResponse;
-        void UnSubscribe(IHandlePresentationRequests instance);
-
-        Task PublishAsync<T>(T presentationEvent) where T : IPresentationEvent;
-
-        Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
+        Task<IEnumerable<TResponse>> MulticastRequest<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
             where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse;
     }
