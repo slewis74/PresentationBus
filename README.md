@@ -4,18 +4,17 @@ PresentationBus
 In-process messaging for .NET rich clients.  PresentationBus is compatible with WPF, Windows 8 Store Apps, Windows Phone 8/8.1, Xamarin and Xamarin Forms.
 
 #Getting started
-One of the key benefits in using messaging within your UI is decoupling.  The two keys scenarios the PresentationBus covers are "I just did something that others might want to know about" and "I want/need to know something but don't know where to get it".
+One of the key benefits in using messaging within your UI is decoupling.  The key scenarios the PresentationBus covers are "I just did something that others might want to know about", "I want something done but I don't know how to do it" and "I want/need to know something but don't know where to get it".
 ##Events
 Events cover the "I just did something" scenario.  The PresentationBus will multicast any events that you publish.
+##Commands
+Command cover the "I want something done" scenarion. 
 ##Requests
 Requests cover the "I want/need to know something" scenario.  There are a couple of options involved with requests, as described below.
-###MustBeHandled
-Use this property of your request to identity whether you want (false) or need (true) a response.
-The provided PresentationRequest base class has a default of MustBeHandled = true.  The best place to change it is in the constructor of your derived request.
-###IsHandled
-Set this property to true in your handler when the request has been fulfilled.
-If the request **MustBeHandle**d and the PresentationBus gets to the end of its list of subscribers without one of them setting IsHandled to true it will throw an exception.
-The PresentationBus will also stop publishing to any further subscribers once IsHandled is set to true.
+###Request
+Use Request when you know there'll be 0..1 handlers.  Expect a null back if there are no handlers.
+###Multicast
+Use MulticastRequest when there could be 0..* handlers.  Expect an empty set of responses if there are no handlers.
 ##Threading
 The PresentationBus uses an async publish, so the UI thread doesn't block.  Therefore the subscribers get called on a background thread, and if they have to do something back on the UI thread it is their responsibility to marshal what they need onto the UI thread.
 #Some examples
