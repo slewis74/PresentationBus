@@ -60,7 +60,9 @@
     <Compile Include="RequestHandledBySyncAndAsyncHandlersScenario.cs" />
     <Compile Include="RequestWithoutSubscribersScenario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SubscribeNullScenario.cs" />
     <Compile Include="UnSubscribedScenario.cs" />
+    <Compile Include="UnSubscribeNullScenario.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PresentationBus\PresentationBus.csproj">

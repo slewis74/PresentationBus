@@ -23,33 +23,33 @@ namespace PresentationBus
         {
             var handlesEvents = instance as IHandlePresentationEvents;
             if (handlesEvents != null)
-                Subscribe(handlesEvents);
+                DoSubscribe(handlesEvents);
 
             var handlesCommands = instance as IHandlePresentationCommands;
             if (handlesCommands != null)
-                Subscribe(handlesCommands);
+                DoSubscribe(handlesCommands);
 
             var handlesRequests = instance as IHandlePresentationRequests;
             if (handlesRequests != null)
-                Subscribe(handlesRequests);
+                DoSubscribe(handlesRequests);
         }
 
         public void UnSubscribe(IHandlePresentationMessages instance)
         {
             var handlesEvents = instance as IHandlePresentationEvents;
             if (handlesEvents != null)
-                UnSubscribe(handlesEvents);
+                DoUnSubscribe(handlesEvents);
 
             var handlesCommands = instance as IHandlePresentationCommands;
             if (handlesCommands != null)
-                UnSubscribe(handlesCommands);
+                DoUnSubscribe(handlesCommands);
 
             var handlesRequests = instance as IHandlePresentationRequests;
             if (handlesRequests != null)
-                UnSubscribe(handlesRequests);
+                DoUnSubscribe(handlesRequests);
         }
 
-        private void Subscribe(IHandlePresentationEvents instance)
+        private void DoSubscribe(IHandlePresentationEvents instance)
         {
             ForEachHandledEvent(instance, x => SubscribeForEvents(x, instance));
         }
@@ -71,7 +71,7 @@ namespace PresentationBus
             eventSubscribersForEventType.AddSubscriber(instance);
         }
 
-        private void UnSubscribe(IHandlePresentationEvents instance)
+        private void DoUnSubscribe(IHandlePresentationEvents instance)
         {
             ForEachHandledEvent(instance, x => UnSubscribeForEvents(x, instance));
         }
@@ -84,7 +84,42 @@ namespace PresentationBus
             }
         }
 
-        private void Subscribe(IHandlePresentationRequests instance)
+        private void DoSubscribe(IHandlePresentationCommands instance)
+        {
+            ForEachHandledCommand(instance, x => SubscribeForCommands(x, instance));
+        }
+
+        private void SubscribeForCommands(Type commandType, object instance)
+        {
+            CommandSubscribers commandSubscribersForCommandType;
+
+            if (_subscribersByCommandType.ContainsKey(commandType))
+            {
+                commandSubscribersForCommandType = _subscribersByCommandType[commandType];
+            }
+            else
+            {
+                commandSubscribersForCommandType = new CommandSubscribers();
+                _subscribersByCommandType.Add(commandType, commandSubscribersForCommandType);
+            }
+
+            commandSubscribersForCommandType.AddSubscriber(instance);
+        }
+
+        private void DoUnSubscribe(IHandlePresentationCommands instance)
+        {
+            ForEachHandledCommand(instance, x => UnSubscribeForCommands(x, instance));
+        }
+
+        private void UnSubscribeForCommands(Type commandType, object handler)
+        {
+            if (_subscribersByCommandType.ContainsKey(commandType))
+            {
+                _subscribersByCommandType[commandType].RemoveSubscriber(handler);
+            }
+        }
+
+        private void DoSubscribe(IHandlePresentationRequests instance)
         {
             ForEachHandledRequest(instance, x => SubscribeForRequests(x, instance));
         }
@@ -106,7 +141,7 @@ namespace PresentationBus
             requestSubscribersForRequestType.AddSubscriber(instance);
         }
 
-        private void UnSubscribe(IHandlePresentationRequests instance)
+        private void DoUnSubscribe(IHandlePresentationRequests instance)
         {
             ForEachHandledRequest(instance, x => UnSubscribeForRequests(x, instance));
         }
@@ -184,6 +219,20 @@ namespace PresentationBus
             {
                 var eventType = interfaceType.GenericTypeArguments.First();
                 callback(eventType);
+            }
+        }
+
+        private void ForEachHandledCommand(IHandlePresentationCommands instance, Action<Type> callback)
+        {
+            var handlesCommandsType = typeof(IHandlePresentationCommands);
+
+            var type = instance.GetType();
+
+            var interfaceTypes = type.GetTypeInfo().ImplementedInterfaces;
+            foreach (var interfaceType in interfaceTypes.Where(x => x.IsConstructedGenericType && handlesCommandsType.GetTypeInfo().IsAssignableFrom(x.GetTypeInfo())))
+            {
+                var commandType = interfaceType.GenericTypeArguments.First();
+                callback(commandType);
             }
         }
 

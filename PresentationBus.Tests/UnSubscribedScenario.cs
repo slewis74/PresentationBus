@@ -7,7 +7,7 @@ namespace PresentationBus.Tests
     public class UnSubscribedScenario
     {
         private PresentationBus _bus;
-        private TestSubscriber _subscriber;
+        private IHandlePresentationMessages _subscriber;
 
         [TestInitialize]
         public void SetUp()

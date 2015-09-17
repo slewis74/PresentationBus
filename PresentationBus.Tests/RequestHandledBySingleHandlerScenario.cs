@@ -8,7 +8,7 @@ namespace PresentationBus.Tests
     public class RequestHandledBySingleHandlerScenario
     {
         private PresentationBus _bus;
-        private TestSubscriber _subscriber;
+        private IHandlePresentationMessages _subscriber;
 
         [TestInitialize]
         public void SetUp()

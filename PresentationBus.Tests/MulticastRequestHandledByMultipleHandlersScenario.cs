@@ -8,8 +8,8 @@ namespace PresentationBus.Tests
     public class MulticastRequestHandledByMultipleHandlersScenario
     {
         private PresentationBus _bus;
-        private TestSubscriber1 _subscriber1;
-        private TestSubscriber2 _subscriber2;
+        private IHandlePresentationMessages _subscriber1;
+        private IHandlePresentationMessages _subscriber2;
 
         [TestInitialize]
         public void SetUp()
