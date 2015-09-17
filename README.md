@@ -161,7 +161,7 @@ So now you can take a dependency on an IPresentationBus, which is certainly what
             if (e == null)
                 return;
 
-            var handler = e.Instance as IHandlePresentationEvents;
+            var handler = e.Instance as IHandlePresentationMessages;
             if (handler == null)
                 return;
             var bus = e.Context.Resolve<IPresentationBusConfiguration>();
