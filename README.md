@@ -147,7 +147,7 @@ If you're using Autofac you may want something like the following to register th
     }
 ```
 
-So now you can take a dependency on an IPresentationBus, which is certainly what you'll want for publishing.  You could also take an IPresentationBus and Subscribe yourself if you handle events/requests, but why have to write that code all the time?  I prefer to use the following 
+So now you can take a dependency on an IPresentationBus, which is certainly what you'll want for publishing.  You could also take an IPresentationBusConfiguration and Subscribe yourself if you handle events/requests, but why have to write that code all the time?  I prefer to use the following 
 
     public class PresentationBusSubscriptionModule : Autofac.Module
     {
