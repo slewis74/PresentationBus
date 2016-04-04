@@ -8,7 +8,7 @@
       <title>PresentationBus</title>
       <description>In-process messaging for .NET rich clients.</description>
       <projectUrl>https://github.com/slewis74/PresentationBus</projectUrl>
-	  <releaseNotes>Added dotnet target</releaseNotes>
+	  <releaseNotes>Renamed async methods</releaseNotes>
     </metadata>
     <files>
         <file src="PresentationBus\Bin\Release\PresentationBus.dll" target="lib\portable-win+net40+wp8+wp81+wpa81+MonoAndroid10+MonoTouch10+dotnet\PresentationBus.dll" />

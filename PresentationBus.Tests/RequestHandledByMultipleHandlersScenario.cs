@@ -25,14 +25,14 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestAResultIsReturned()
         {
-            var result = await _bus.Request(new TestRequest());
+            var result = await _bus.RequestAsync(new TestRequest());
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestHarryIsReturned()
         {
-            var result = await _bus.Request(new TestRequest());
+            var result = await _bus.RequestAsync(new TestRequest());
             Assert.AreEqual("Harry", result.Name);
         }
 
@@ -40,7 +40,7 @@ namespace PresentationBus.Tests
         public async Task GivenSubscribersThatHandleTheRequestWhenOneUnsubscribesTheOtherHandlesTheRequest()
         {
             _bus.UnSubscribe(_subscriber1);
-            var result = await _bus.Request(new TestRequest());
+            var result = await _bus.RequestAsync(new TestRequest());
             Assert.AreEqual("Fred", result.Name);
         }
 

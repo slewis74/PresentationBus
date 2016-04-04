@@ -18,7 +18,7 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenARequestAndNoSubscribersANullIsReturned()
         {
-            var result = await _bus.Request(new TestRequest());
+            var result = await _bus.RequestAsync(new TestRequest());
             Assert.IsNull(result);
         }
 

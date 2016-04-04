@@ -25,14 +25,14 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestHarryIsReturned()
         {
-            var results = await _bus.MulticastRequest(new TestRequest());
+            var results = await _bus.MulticastRequestAsync(new TestRequest());
             Assert.IsNotNull(results.SingleOrDefault(x => x.Name == "Harry"));
         }
 
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestFredIsReturned()
         {
-            var results = await _bus.MulticastRequest(new TestRequest());
+            var results = await _bus.MulticastRequestAsync(new TestRequest());
             Assert.IsNotNull(results.SingleOrDefault(x => x.Name == "Fred"));
         }
 

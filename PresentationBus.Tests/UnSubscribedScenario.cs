@@ -23,7 +23,7 @@ namespace PresentationBus.Tests
         {
             _bus.UnSubscribe(_subscriber);
 
-            await _bus.Publish(new TestEvent());
+            await _bus.PublishAsync(new TestEvent());
 
             Assert.AreEqual(0, TestSubscriber.HandledCount);
         }

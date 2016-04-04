@@ -154,27 +154,27 @@ namespace PresentationBus
             }
         }
 
-        public async Task Publish<TEvent>(TEvent presentationEvent) where TEvent : IPresentationEvent
+        public async Task PublishAsync<TEvent>(TEvent presentationEvent) where TEvent : IPresentationEvent
         {
             var type = presentationEvent.GetType();
             var typeInfo = type.GetTypeInfo();
             foreach (var subscribedType in _subscribersByEventType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
             {
-                await _subscribersByEventType[subscribedType].Publish(presentationEvent);
+                await _subscribersByEventType[subscribedType].PublishAsync(presentationEvent).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
-        public async Task Send<TCommand>(TCommand presentationEvent) where TCommand : IPresentationCommand
+        public async Task SendAsync<TCommand>(TCommand presentationEvent) where TCommand : IPresentationCommand
         {
             var type = presentationEvent.GetType();
             var typeInfo = type.GetTypeInfo();
             foreach (var subscribedType in _subscribersByCommandType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
             {
-                await _subscribersByCommandType[subscribedType].Send(presentationEvent);
+                await _subscribersByCommandType[subscribedType].SendAsync(presentationEvent).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
-        public async Task<TResponse> Request<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
+        public async Task<TResponse> RequestAsync<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
             where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
@@ -183,7 +183,7 @@ namespace PresentationBus
             var result = default(TResponse);
             foreach (var subscribedType in _subscribersByRequestType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
             {
-                var results = await _subscribersByRequestType[subscribedType].PublishRequest<TRequest, TResponse>((TRequest)request);
+                var results = await _subscribersByRequestType[subscribedType].PublishRequestAsync<TRequest, TResponse>((TRequest)request).ConfigureAwait(continueOnCapturedContext: false);
                 result = results.FirstOrDefault();
                 if (result != null)
                 {
@@ -193,7 +193,7 @@ namespace PresentationBus
             return result;
         }
 
-        public async Task<IEnumerable<TResponse>> MulticastRequest<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
+        public async Task<IEnumerable<TResponse>> MulticastRequestAsync<TRequest, TResponse>(IPresentationRequest<TRequest, TResponse> request)
             where TRequest : IPresentationRequest<TRequest, TResponse>
             where TResponse : IPresentationResponse
         {
@@ -202,7 +202,7 @@ namespace PresentationBus
             var results = new List<TResponse>();
             foreach (var subscribedType in _subscribersByRequestType.Keys.Where(t => t.GetTypeInfo().IsAssignableFrom(typeInfo)).ToArray())
             {
-                var result = await _subscribersByRequestType[subscribedType].PublishRequest<TRequest,TResponse>((TRequest)request);
+                var result = await _subscribersByRequestType[subscribedType].PublishRequestAsync<TRequest,TResponse>((TRequest)request).ConfigureAwait(continueOnCapturedContext: false);
                 results.AddRange(result);
             }
             return results;
@@ -288,7 +288,7 @@ namespace PresentationBus
                 }
             }
 
-            public async Task<bool> Publish<TEvent>(TEvent presentationEvent) where TEvent : IPresentationEvent
+            public async Task<bool> PublishAsync<TEvent>(TEvent presentationEvent) where TEvent : IPresentationEvent
             {
                 var anySubscribersStillListening = false;
 
@@ -300,7 +300,7 @@ namespace PresentationBus
                         
                     var asyncHandler = subscriber.Target as IHandlePresentationEventAsync<TEvent>;
                     if (asyncHandler != null)
-                        await asyncHandler.HandleAsync(presentationEvent);
+                        await asyncHandler.HandleAsync(presentationEvent).ConfigureAwait(continueOnCapturedContext: false);
 
                     anySubscribersStillListening = true;
                 }
@@ -354,7 +354,7 @@ namespace PresentationBus
                 }
             }
 
-            public async Task<IEnumerable<TResponse>> PublishRequest<TRequest, TResponse>(TRequest request)
+            public async Task<IEnumerable<TResponse>> PublishRequestAsync<TRequest, TResponse>(TRequest request)
                 where TRequest : IPresentationRequest<TRequest, TResponse>
                 where TResponse : IPresentationResponse
             {
@@ -371,7 +371,7 @@ namespace PresentationBus
                     var asyncHandler = subscriber.Target as IHandlePresentationRequestAsync<TRequest, TResponse>;
                     if (asyncHandler != null)
                     {
-                        results.Add(await asyncHandler.HandleAsync(request));
+                        results.Add(await asyncHandler.HandleAsync(request).ConfigureAwait(continueOnCapturedContext: false));
                     }
                 }
 
@@ -417,7 +417,7 @@ namespace PresentationBus
                 }
             }
 
-            public async Task<bool> Send<TEvent>(TEvent presentationEvent) where TEvent : IPresentationCommand
+            public async Task<bool> SendAsync<TEvent>(TEvent presentationEvent) where TEvent : IPresentationCommand
             {
                 var anySubscribersStillListening = false;
 
@@ -429,7 +429,7 @@ namespace PresentationBus
 
                     var asyncHandler = subscriber.Target as IHandlePresentationCommandAsync<TEvent>;
                     if (asyncHandler != null)
-                        await asyncHandler.HandleAsync(presentationEvent);
+                        await asyncHandler.HandleAsync(presentationEvent).ConfigureAwait(continueOnCapturedContext: false);
 
                     anySubscribersStillListening = true;
                 }
@@ -437,6 +437,5 @@ namespace PresentationBus
                 return anySubscribersStillListening;
             }
         }
-
     }
 }

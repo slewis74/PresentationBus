@@ -21,7 +21,7 @@ namespace PresentationBus.Tests
             var exceptionWasThrown = false;
             try
             {
-                await _bus.MulticastRequest(new TestRequest());
+                await _bus.MulticastRequestAsync(new TestRequest());
             }
             catch (InvalidOperationException)
             {

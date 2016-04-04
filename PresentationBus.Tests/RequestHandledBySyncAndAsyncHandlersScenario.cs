@@ -25,14 +25,14 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestHarryIsReturned()
         {
-            var result = await _bus.Request(new TestRequest());
+            var result = await _bus.RequestAsync(new TestRequest());
             Assert.AreEqual("Harry", result.Name);
         }
 
         [TestMethod]
         public async Task GivenSubscribersThatHandleTheRequestFredIsReturned()
         {
-            var result = await _bus.Request(new TestRequestA());
+            var result = await _bus.RequestAsync(new TestRequestA());
             Assert.AreEqual("Fred", result.Name);
         }
 

@@ -17,7 +17,7 @@ namespace PresentationBus.Tests
         [TestMethod]
         public async Task GivenARequestAndNoSubscribersAnEmptyResponseListIsReturned()
         {
-            var results = await _bus.MulticastRequest(new TestRequest());
+            var results = await _bus.MulticastRequestAsync(new TestRequest());
             Assert.IsFalse(results.Any());
         }
 
